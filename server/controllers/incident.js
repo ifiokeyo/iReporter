@@ -119,7 +119,7 @@ export const getOne = async (req, res) => {
   }
 }
 
-export const updateLocation = async (req, res) => {
+export const update = async (req, res) => {
   const incidentType =  req.originalUrl.split('/')[3].slice(0, -1);
   const updateType = req.originalUrl.split('/')[5];
   const { user: { id } } = req;
@@ -147,6 +147,14 @@ export const updateLocation = async (req, res) => {
       })
     }
 
+    if (incident.status != 'pending') {
+      return res.status(403).send({
+        error: 'Report cannot be edited'
+      })
+    }
+
+    let updateData;
+
     if (updateType === 'location') {
       const { body: { location } } = req;
       const coord_arr = (validator.blacklist(location, '\/\&<%#@^*>$[\\]')).split(',');
@@ -154,15 +162,15 @@ export const updateLocation = async (req, res) => {
         type: 'Point',
         coordinates: coord_arr
       };
-      const updateData = {
+      updateData = {
         location: loc
       }
     }
     else {
       const { body: { comment } } = req;
-      const sanitizedComment = (validator.blacklist(location, '\/\&<%#@^*>$[\\]')).split(',');
-      const updateData = {
-        comment
+      const sanitizedComment = validator.escape(comment);
+      updateData = {
+        comment: sanitizedComment
       }
     }
 
