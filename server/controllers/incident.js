@@ -1,5 +1,5 @@
 import models from '../models';
-import dataValidator from '../utility/incidentValidator';
+import { incidentValidator } from '../utility/inputValidator';
 import debug from 'debug';
 import Sequelize from 'sequelize';
 import validator from 'validator';
@@ -10,7 +10,7 @@ const logger = debug('server:incident');
 const { Op } = Sequelize;
 
 export const create = async (req, res) => {
-  const { errors, isValid } = dataValidator(req.body);
+  const { errors, isValid } = incidentValidator(req.body);
 
   if (!isValid) {
     return res.status(400).json(errors);
@@ -73,80 +73,29 @@ export const getAll = async (req, res) => {
   }
   catch(err) {
     return res.status(500).send({
-      error: 'Server error'
+      error: {
+        message: 'Server error',
+        error
+      }
     })
   }
 
 }
 
-export const getOne = async (req, res) => {
-  const incidentType =  req.originalUrl.split('/')[3].slice(0, -1);
-  const { user: { id } } = req;
-  const incidentId = req.params.id;
-
-
-  try {
-    const incident = await Incident.findOne({
-      where: {
-        createdBy : {
-          [Op.eq]: id
-        },
-        type : {
-          [Op.eq]: incidentType
-        },
-        id : {
-          [Op.eq]: incidentId
-        }
-      }
-    });
-
-    if (!incident) {
-      return res.status(404).send({
-        error: 'Report not found!'
-      })
+export const getOne = (req, res) => {
+  const { incident } = req;
+  return res.status(200).send({
+    data: {
+      incident
     }
-
-    return res.status(200).send({
-      data: {
-        incident
-      }
-    })
-  }
-  catch(err) {
-    return res.status(500).send({
-      error: 'Server error'
-    })
-  }
+  })
 }
 
 export const update = async (req, res) => {
-  const incidentType =  req.originalUrl.split('/')[3].slice(0, -1);
   const updateType = req.originalUrl.split('/')[5];
-  const { user: { id } } = req;
-  const incidentId = req.params.id;
-
+  const { incident } = req;
 
   try {
-    const incident = await Incident.findOne({
-      where: {
-        createdBy : {
-          [Op.eq]: id
-        },
-        type : {
-          [Op.eq]: incidentType
-        },
-        id : {
-          [Op.eq]: incidentId
-        }
-      }
-    });
-
-    if (!incident) {
-      return res.status(404).send({
-        error: 'Report not found!'
-      })
-    }
-
     if (incident.status != 'pending') {
       return res.status(403).send({
         error: 'Report cannot be edited'
@@ -185,7 +134,10 @@ export const update = async (req, res) => {
   }
   catch(err) {
     return res.status(500).send({
-      error: 'Server error'
+      error: {
+        message: 'Server error',
+        error
+      }
     })
   }
 }
