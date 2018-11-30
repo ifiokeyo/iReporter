@@ -59,3 +59,16 @@ export const incidentValidator = (reqData) => {
     isValid: isEmpty(errors)
   };
 }
+
+export const updateValidator = (reqData) => {
+  const errors = {};
+
+  if (!validator.isIn(reqData.status, ['under investigation', 'rejected', 'resolved'])) {
+    errors.location = "Status can only be updated to either 'under investigation', 'rejected',  or 'resolved'";
+  }
+
+  return {
+    errors,
+    isValid: isEmpty(errors)
+  };
+}

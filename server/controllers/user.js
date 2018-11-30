@@ -64,7 +64,7 @@ export const create = async (req, res) => {
       }
     );
   }
-  catch(err) {
+  catch(error) {
     return res.status(500).send({
       error: {
         message: 'Server error',

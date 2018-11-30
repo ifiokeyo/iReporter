@@ -8,6 +8,8 @@ import session from 'express-session';
 import auth from './server/auth/auth';
 import userRouter from './server/routes/user';
 import redFlagRouter from './server/routes/redFlag';
+import interventionRouter from './server/routes/intervention';
+import adminRouter from './server/routes/admin';
 
 
 const logger = debug('server');
@@ -33,6 +35,8 @@ const port = 5000;
 
 app.use('/api/v1/auth', userRouter);
 app.use('/api/v1/red-flags', redFlagRouter);
+app.use('/api/v1/intervention', interventionRouter);
+app.use('/api/v1/admin', adminRouter);
 
 app.listen(port, () => {
   logger(`Server running on port ${chalk.green(port)}`);
