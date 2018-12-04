@@ -9,7 +9,7 @@ import Sequelize from 'sequelize';
 const interventionRouter = Router();
 const { Op } = Sequelize;
 
-redFlagRouter.use(auth.authenticate('jwt', config.jwtSession));
+interventionRouter.use(auth.authenticate('jwt', config.jwtSession));
 
 interventionRouter.param('id', async (req, res, next, id) => {
   const incidentType =  req.originalUrl.split('/')[3].slice(0, -1);

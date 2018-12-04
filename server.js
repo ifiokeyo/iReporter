@@ -37,6 +37,9 @@ app.use('/api/v1/auth', userRouter);
 app.use('/api/v1/red-flags', redFlagRouter);
 app.use('/api/v1/intervention', interventionRouter);
 app.use('/api/v1/admin', adminRouter);
+app.get('/', (req, res) => {
+  return res.send('Welcome Docker');
+})
 
 app.listen(port, () => {
   logger(`Server running on port ${chalk.green(port)}`);
