@@ -20,7 +20,6 @@
 # >&2 echo "Postgres is up - continuing..."
 
 cd server
-sleep 30
 ls
 npm run migrate
 popd

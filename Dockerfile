@@ -17,7 +17,13 @@ RUN ls
 
 # wait for postgres
 
-ADD start_server.sh /start_server.sh
+COPY start_server.sh /start_server.sh
 RUN chmod +x /start_server.sh
 
-ENTRYPOINT "/start_server.sh" && /bin/bash
+COPY wait_for_it.sh /wait_for_it.sh
+RUN chmod +x /wait_for_it.sh
+
+# ENTRYPOINT "/start_server.sh" && /bin/bash
+
+CMD ["/wait_for_it.sh", "-s", "db:5432", "--", "/start_server.sh"]
+
