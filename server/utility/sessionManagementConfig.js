@@ -8,7 +8,7 @@ const sessionManagementConfig = (app) => {
     req.session.regenerate((err) => {
       if (err) {
         cb(err);
-      }
+      };
     });
     req.session.userInfo = user;
     cb();
@@ -19,12 +19,12 @@ const sessionManagementConfig = (app) => {
     database: process.env.POSTGRES_DB,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT
-  }
+  };
   const pgSessionStore = pgSession(session);
   const pgStoreConfig = {
     conObject: conn,
     ttl: (1 * 60 * 60)
-  }
+  };
   app.use(session({
     store : new pgSessionStore(pgStoreConfig),
     secret: process.env.SECRET,
