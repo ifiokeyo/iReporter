@@ -1,7 +1,18 @@
 'use strict';
+const fs = require('fs');
+const path = require('path');
+
+const filePath = path.join(path.resolve(), 'server/table.sql');
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+      .then(() => {
+        fs.readFile(filePath, 'utf8', (err, sql) => {
+          if (err) throw err;
+          queryInterface.sequelize.query(sql);
+        })
+      })
       .then(() => {
         return queryInterface.createTable('Users', {
           id: {

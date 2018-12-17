@@ -1,5 +1,5 @@
 import models from '../models';
-import { signupValidator, loginValidator } from '../utility/inputValidator';
+import { loginValidator } from '../utility/inputValidator';
 import { omit } from 'lodash';
 import jwt from 'jsonwebtoken';
 import Sequelize from 'sequelize';
@@ -14,27 +14,8 @@ const { User } = models;
 
 
 export const create = async (req, res) => {
-  const { errors, isValid } = signupValidator(req.body);
-
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-
   const { firstName, lastName, email, phoneNumber, password } = req.body;
   try {
-    const user = await User.findOne({
-      where: {
-        email: {
-          [Op.eq]: email
-        }
-      }
-    });
-    if (user) {
-      return res.status(400).send({
-        error: 'An account with that email address already exists'
-      });
-    }
-
     let newUser = await User.create(
       {
         email,
@@ -52,6 +33,17 @@ export const create = async (req, res) => {
     const userInfo = omit(newUser, ['password']);
     const token = jwt.sign(payload, secretKey, {
       expiresIn: '24h'
+    });
+
+    req.session.login(userInfo, (err) => {
+      if (err) {
+        return res.status(500).send({
+          error: {
+            message: "There was an error logging in. Please try again later.",
+            error: err
+          }
+        });
+      }
     });
 
     return res.status(201).send(
@@ -109,6 +101,17 @@ export const login = async (req, res) => {
         expiresIn: '24h'
       });
 
+      req.session.login(payload, (err) => {
+        if (err) {
+          return res.status(500).send({
+            error: {
+              message: "There was an error logging in. Please try again later.",
+              error: err
+            }
+          });
+        }
+      });
+
       return res.status(201).send({
         data: {
           user: payload,
@@ -130,4 +133,20 @@ export const login = async (req, res) => {
     })
   }
 };
+
+export const logout = (req, res) => {
+  req.session.destroy(function(err) {
+    if (err) {
+      return res.status(500).send({
+        error: {
+          message: 'server error',
+          error: err
+        }
+      });
+    };
+  });
+  return res.status(200).send({
+    message: 'You successfully logged out'
+  })
+}
 
